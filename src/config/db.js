@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 
+mongoose.set('strictQuery', false);
 const connectToDB = async () => {
 	const url = process.env.MONGO_URL;
 	try {
@@ -10,6 +11,7 @@ const connectToDB = async () => {
 			'could not connect to the database',
 			error,
 		);
+		process.exit(1);
 	}
 };
 

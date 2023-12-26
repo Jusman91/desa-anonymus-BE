@@ -78,13 +78,8 @@ export const getOneUser = async (req, res, next) => {
 };
 
 export const getAllUsers = async (req, res, next) => {
-	const searchQuery = req.query.search || '';
-
 	const fields = ['firstName', 'lastName', 'email'];
-	const combineQuery = buildSearchQuery(
-		searchQuery,
-		fields,
-	);
+	const combineQuery = buildSearchQuery(req, fields);
 	const sortBy = buildSortQuery(req);
 	const { page, limit, skip } = buildPagination(req);
 	try {
@@ -101,6 +96,7 @@ export const getAllUsers = async (req, res, next) => {
 		const pageCount = Math.ceil(totalUsers / limit);
 
 		res.status(200).json({
+			status: 'success',
 			data: users,
 			totalData: totalUsers,
 			page,

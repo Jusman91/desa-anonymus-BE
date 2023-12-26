@@ -1,5 +1,10 @@
 import Product from '../models/Product.js';
 import { createError } from '../middleware/error.js';
+import {
+	buildPagination,
+	buildSearchQuery,
+	buildSortQuery,
+} from '../utils/queries.js';
 
 export const createProduct = async (req, res, next) => {
 	const newProduct = new Product(req.body);
@@ -58,9 +63,30 @@ export const getOneProduct = async (req, res, next) => {
 };
 
 export const getAllProducts = async (req, res, next) => {
+	const fields = ['name', 'category'];
+	const combineQuery = buildSearchQuery(req, fields);
+	const sortBy = buildSortQuery(req);
+	const { page, limit, skip } = buildPagination(req);
 	try {
-		const products = await Product.find();
-		res.status(200).json(products);
+		const products = await Product.find(combineQuery)
+			.skip(skip)
+			.limit(limit)
+			.sort(sortBy);
+		exec();
+
+		const totalProducts = await Product.countDocuments(
+			combineQuery,
+		);
+		const pageCount = Math.ceil(totalProducts / limit);
+
+		res.status(200).json({
+			status: 'success',
+			data: products,
+			totalData: totalProducts,
+			page,
+			pageCount,
+			limit,
+		});
 	} catch (error) {
 		next(error);
 	}

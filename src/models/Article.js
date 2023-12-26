@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const ArticleSchmea = mongoose.Schema(
+const ArticleSchema = new mongoose.Schema(
 	{
 		title: {
 			type: String,
@@ -25,7 +25,7 @@ const ArticleSchmea = mongoose.Schema(
 			required: true,
 		},
 		category: {
-			type: [String],
+			type: String,
 			required: true,
 		},
 		content: {
@@ -42,4 +42,4 @@ const ArticleSchmea = mongoose.Schema(
 	{ timestamps: true },
 );
 
-export default mongoose.model('article', ArticleSchmea);
+export default mongoose.model('article', ArticleSchema);

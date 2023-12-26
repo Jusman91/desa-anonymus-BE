@@ -1,5 +1,6 @@
-export const buildSearchQuery = (searchQuery, fields) => {
-	// const searchQuery = req.query.search || '';
+export const buildSearchQuery = (req, fields) => {
+	const searchQuery = req.query.search || '';
+	const filterPrice = req.query.price || 0;
 	const filters = {};
 	const filterConditions = searchQuery.split(',');
 
@@ -12,6 +13,30 @@ export const buildSearchQuery = (searchQuery, fields) => {
 			};
 		}
 	});
+
+	const category = req.query.category;
+	if (category && category !== 'all') {
+		filters.category = { $in: category };
+	}
+
+	if (filterPrice) {
+		const priceRange = filterPrice.split('-');
+		if (priceRange.length === 2) {
+			const minPrice = parseFloat(priceRange[0]);
+			const maxPrice = parseFloat(priceRange[1]);
+			if (!isNaN(minPrice) && !isNaN(maxPrice)) {
+				filters.price = {
+					$gte: minPrice,
+					$lte: maxPrice,
+				};
+			}
+		} else {
+			const priceValue = parseFloat(filterPrice);
+			if (!isNaN(priceValue)) {
+				filters.price = priceValue;
+			}
+		}
+	}
 
 	return Object.keys(filters).length > 0
 		? filters

@@ -8,8 +8,8 @@ import morgan from 'morgan';
 import connectToDB from './config/db.js';
 // import authRoutes from './routes/auth.js';
 import usersRoutes from './routes/users.js';
-// import articlesRoutes from './routes/articles.js';
-// import productsRoutes from './routes/products.js';
+import articlesRoutes from './routes/articles.js';
+import productsRoutes from './routes/products.js';
 
 const v1 = '/api/desa-anonymus/v1';
 
@@ -24,8 +24,8 @@ app.use(cookieParser());
 // Routes
 // app.use(`${v1}/auth`, authRoutes);
 app.use(`${v1}/users`, usersRoutes);
-// app.use(`${v1}/articles`, articlesRoutes);
-// app.use(`${v1}/products`, productsRoutes);
+app.use(`${v1}/articles`, articlesRoutes);
+app.use(`${v1}/products`, productsRoutes);
 
 // Handle errors
 app.use((err, req, res, next) => {
