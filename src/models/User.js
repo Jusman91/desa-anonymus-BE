@@ -2,14 +2,9 @@ import mongoose from 'mongoose';
 
 const UserSchema = new mongoose.Schema(
 	{
-		firstName: {
+		username: {
 			type: String,
 			required: [true, 'pelase add your first name'],
-			maxLength: [10, 'your name is up to 10 chars long'],
-		},
-		lastName: {
-			type: String,
-			required: [true, 'pelase add your last name'],
 			maxLength: [10, 'your name is up to 10 chars long'],
 		},
 		email: {
@@ -27,11 +22,8 @@ const UserSchema = new mongoose.Schema(
 		},
 		role: {
 			type: String,
+			enum: ['user', 'admin'],
 			default: 'user',
-		},
-		type: {
-			type: String,
-			default: 'normal',
 		},
 	},
 	{ timestamps: true },

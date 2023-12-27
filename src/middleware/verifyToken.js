@@ -4,21 +4,25 @@ import { createError } from './error.js';
 export const verifyToken = (req, res, next) => {
 	const authHeader =
 		req.headers.authorization || req.headers.Authorization;
-	const token = authHeader?.split('')[1];
 
-	if (!authHeader)
+	if (authHeader) {
+		const token = authHeader.split(' ')[1];
+
+		jwt.verify(
+			token,
+			process.env.TOKEN_SECRET_KEY,
+			(err, decode) => {
+				if (err)
+					return next(
+						createError(403, 'Token is not valid'),
+					);
+				req.user = decode;
+				next();
+			},
+		);
+	} else {
 		return next(createError(401, 'Unauthorized'));
-
-	jwt.verify(
-		token,
-		process.env.TOKEN_SECRET_KEY,
-		(err, decode) => {
-			if (err)
-				return next(createError(403, 'Token is not valid'));
-			req.user = decode;
-			next();
-		},
-	);
+	}
 };
 
 export const verifyUser = (req, res, next) => {

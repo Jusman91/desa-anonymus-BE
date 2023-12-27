@@ -1,23 +1,25 @@
 import User from '../models/User.js';
 import { createError } from '../middleware/error.js';
-import bcrypt from 'bcryptjs';
 import {
 	buildPagination,
 	buildSearchQuery,
 	buildSortQuery,
 } from '../utils/queries.js';
+import { encrypPassword } from '../utils/encryption.js';
 
 export const createUser = async (req, res, next) => {
-	const { firstName, lastName, email, password } = req.body;
+	const { username, email, password } = req.body;
 	try {
 		const existingUser = await User.findOne({ email });
 		if (existingUser)
 			return next(createError(400, 'Email already exists'));
 
-		const hashedPassword = await bcrypt.hash(password, 12);
+		const { hashedPassword } = await encrypPassword(
+			password,
+		);
+
 		await User.create({
-			firstName,
-			lastName,
+			username,
 			email,
 			password: hashedPassword,
 		});
@@ -67,7 +69,9 @@ export const deleteUser = async (req, res, next) => {
 export const getOneUser = async (req, res, next) => {
 	const { id } = req.params;
 	try {
-		const user = await User.findById(id).select('password');
+		const user = await User.findById(id).select(
+			'-password',
+		);
 		if (!user)
 			return next(createError(404, 'User not found'));
 
@@ -78,7 +82,7 @@ export const getOneUser = async (req, res, next) => {
 };
 
 export const getAllUsers = async (req, res, next) => {
-	const fields = ['firstName', 'lastName', 'email'];
+	const fields = ['username', 'email'];
 	const combineQuery = buildSearchQuery(req, fields);
 	const sortBy = buildSortQuery(req);
 	const { page, limit, skip } = buildPagination(req);
