@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs';
+import { createError } from '../middleware/error.js';
 
 export const encrypPassword = async (password) => {
 	const hashedPassword = await bcrypt.hash(password, 10);
@@ -13,5 +14,6 @@ export const comparePassword = async (
 		password,
 		existPassword,
 	);
-	return { isPasswordValid };
+	if (!isPasswordValid)
+		throw createError(400, 'Invalid password');
 };

@@ -5,11 +5,15 @@ import {
 	buildSearchQuery,
 	buildSortQuery,
 } from '../utils/queries.js';
+import {
+	validateCreateArticleBody,
+	validateUpdateArticleBody,
+} from '../utils/validations/reqBodyValidaton.js';
 
 export const createArticle = async (req, res, next) => {
-	const newArticle = new Article(req.body);
 	try {
-		await newArticle.save();
+		await validateCreateArticleBody(req.body);
+		await Article.create(req.body);
 		res
 			.status(201)
 			.json({ message: 'Created article successfully' });
@@ -21,6 +25,7 @@ export const createArticle = async (req, res, next) => {
 export const updateArticle = async (req, res, next) => {
 	const { id } = req.params;
 	try {
+		await validateUpdateArticleBody(req.body);
 		const updatedArticle = await Article.findByIdAndUpdate(
 			id,
 			{ $set: req.body },
@@ -84,7 +89,6 @@ export const getAllArticles = async (req, res, next) => {
 		const pageCount = Math.ceil(totalArticles / limit);
 
 		res.status(200).json({
-			status: 'success',
 			data: articles,
 			totalData: totalArticles,
 			page,

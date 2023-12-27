@@ -6,10 +6,15 @@ import {
 	buildSortQuery,
 } from '../utils/queries.js';
 import { encrypPassword } from '../utils/encryption.js';
+import {
+	validateRegisterBody,
+	validateUpdateUserBody,
+} from '../utils/validations/reqBodyValidaton.js';
 
 export const createUser = async (req, res, next) => {
 	const { username, email, password } = req.body;
 	try {
+		await validateRegisterBody(req.body);
 		const existingUser = await User.findOne({ email });
 		if (existingUser)
 			return next(createError(400, 'Email already exists'));
@@ -23,9 +28,9 @@ export const createUser = async (req, res, next) => {
 			email,
 			password: hashedPassword,
 		});
-		res
-			.status(201)
-			.json({ message: 'User created successfully' });
+		res.status(201).json({
+			message: 'User created successfully',
+		});
 	} catch (error) {
 		next(error);
 	}
@@ -34,6 +39,7 @@ export const createUser = async (req, res, next) => {
 export const updateUser = async (req, res, next) => {
 	const { id } = req.params;
 	try {
+		await validateUpdateUserBody(req.body);
 		const updatedUser = await User.findByIdAndUpdate(
 			id,
 			{ $set: req.body },
@@ -43,9 +49,9 @@ export const updateUser = async (req, res, next) => {
 		if (!updatedUser)
 			return next(createError(404, 'User not found'));
 
-		res
-			.status(200)
-			.json({ message: 'Updated user successfully' });
+		res.status(200).json({
+			message: 'Updated user successfully',
+		});
 	} catch (error) {
 		next(error);
 	}
@@ -100,7 +106,6 @@ export const getAllUsers = async (req, res, next) => {
 		const pageCount = Math.ceil(totalUsers / limit);
 
 		res.status(200).json({
-			status: 'success',
 			data: users,
 			totalData: totalUsers,
 			page,

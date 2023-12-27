@@ -5,20 +5,14 @@ const ArticleSchema = new mongoose.Schema(
 		title: {
 			type: String,
 			required: true,
-			minLength: 10,
-			maxLength: 50,
 		},
 		author: {
 			type: String,
 			required: true,
-			minLength: 3,
-			maxLength: 15,
 		},
 		description: {
 			type: String,
 			required: true,
-			minLength: 50,
-			maxLength: 200,
 		},
 		thumbnail: {
 			type: String,

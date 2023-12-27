@@ -5,7 +5,6 @@ const ProductSchema = new mongoose.Schema(
 		name: {
 			type: String,
 			required: true,
-			maxLength: 50,
 		},
 		price: {
 			type: Number,
@@ -23,7 +22,6 @@ const ProductSchema = new mongoose.Schema(
 		description: {
 			type: String,
 			required: true,
-			maxLength: 200,
 		},
 		thumbnail: {
 			type: String,
@@ -32,7 +30,6 @@ const ProductSchema = new mongoose.Schema(
 		location: {
 			type: String,
 			required: true,
-			maxLength: 100,
 		},
 		inStock: {
 			type: Boolean,

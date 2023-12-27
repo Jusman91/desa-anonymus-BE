@@ -5,12 +5,18 @@ import {
 	buildSearchQuery,
 	buildSortQuery,
 } from '../utils/queries.js';
+import {
+	validateCreateProductBody,
+	validateUpdateProductBody,
+} from '../utils/validations/reqBodyValidaton.js';
 
 export const createProduct = async (req, res, next) => {
-	const newProduct = new Product(req.body);
 	try {
-		const savedProduct = await newProduct.save();
-		res.status(201).json(savedProduct);
+		await validateCreateProductBody(req.body);
+		await Product.create(req.body);
+		res
+			.status(201)
+			.json({ message: 'Product created successfully' });
 	} catch (error) {
 		next(error);
 	}
@@ -19,6 +25,7 @@ export const createProduct = async (req, res, next) => {
 export const updateProduct = async (req, res, next) => {
 	const { id } = req.params;
 	try {
+		await validateUpdateProductBody(req.body);
 		const updatedProduct = await Product.findByIdAndUpdate(
 			id,
 			{ $set: req.body },
@@ -28,7 +35,9 @@ export const updateProduct = async (req, res, next) => {
 		if (!updatedProduct)
 			return next(createError(404, 'Product not found'));
 
-		res.status(200).json(updatedProduct);
+		res
+			.status(200)
+			.json({ message: 'Product updated successfully' });
 	} catch (error) {
 		next(error);
 	}
@@ -80,7 +89,6 @@ export const getAllProducts = async (req, res, next) => {
 		const pageCount = Math.ceil(totalProducts / limit);
 
 		res.status(200).json({
-			status: 'success',
 			data: products,
 			totalData: totalProducts,
 			page,
