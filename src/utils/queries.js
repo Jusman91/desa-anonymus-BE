@@ -1,5 +1,7 @@
 export const buildSearchQuery = (req, fields) => {
 	const searchQuery = req.query.search || '';
+	const inStock = req.query.inStock;
+	const category = req.query.category;
 	const filterPrice = req.query.price || 0;
 	const filters = {};
 	const filterConditions = searchQuery.split(',');
@@ -14,7 +16,10 @@ export const buildSearchQuery = (req, fields) => {
 		}
 	});
 
-	const category = req.query.category;
+	if (inStock !== undefined) {
+		filters.inStock = inStock;
+	}
+
 	if (category && category !== 'all') {
 		filters.category = { $in: category };
 	}
@@ -65,7 +70,7 @@ export const buildSortQuery = (req) => {
 
 export const buildPagination = (req) => {
 	const page = parseInt(req.query.page) || 1;
-	const limit = parseInt(req.query.limit) || 5;
+	const limit = parseInt(req.query.limit) || 10;
 	const skip = (page - 1) * limit;
 
 	return { page, limit, skip };

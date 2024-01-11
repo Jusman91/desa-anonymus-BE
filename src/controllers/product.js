@@ -80,8 +80,8 @@ export const getAllProducts = async (req, res, next) => {
 		const products = await Product.find(combineQuery)
 			.skip(skip)
 			.limit(limit)
-			.sort(sortBy);
-		exec();
+			.sort(sortBy)
+			.exec();
 
 		const totalProducts = await Product.countDocuments(
 			combineQuery,

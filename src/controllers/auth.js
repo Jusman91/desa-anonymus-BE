@@ -57,17 +57,3 @@ export const login = async (req, res, next) => {
 		next(error);
 	}
 };
-
-export const getUserLogged = async (req, res, next) => {
-	try {
-		const { id } = req.user;
-		const user = await User.findById(id).select(
-			'-password',
-		);
-		if (!user)
-			return next(createError(404, 'User not found'));
-		res.status(200).json(user);
-	} catch (error) {
-		next(error);
-	}
-};

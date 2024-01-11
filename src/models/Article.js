@@ -26,12 +26,12 @@ const ArticleSchema = new mongoose.Schema(
 			type: String,
 			required: true,
 		},
-		likes: [
-			{
-				type: mongoose.Types.ObjectId,
-				ref: 'user',
-			},
-		],
+		// likes: [
+		// 	{
+		// 		type: mongoose.Types.ObjectId,
+		// 		ref: 'user',
+		// 	},
+		// ],
 	},
 	{ timestamps: true },
 );

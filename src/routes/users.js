@@ -1,6 +1,7 @@
 import express from 'express';
 import {
 	verifyAdmin,
+	verifyToken,
 	verifyUser,
 } from '../middleware/verifyToken.js';
 import {
@@ -8,10 +9,12 @@ import {
 	deleteUser,
 	getAllUsers,
 	getOneUser,
+	getUserLogged,
 	updateUser,
 } from '../controllers/user.js';
 const router = express.Router();
 
+router.get('/me', verifyToken, getUserLogged);
 router.post('/', verifyAdmin, createUser);
 router.put('/:id', verifyUser, updateUser);
 router.delete('/:id', verifyUser, deleteUser);

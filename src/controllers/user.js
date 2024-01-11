@@ -11,6 +11,20 @@ import {
 	validateUpdateUserBody,
 } from '../utils/validations/reqBodyValidaton.js';
 
+export const getUserLogged = async (req, res, next) => {
+	try {
+		const { id } = req.user;
+		const user = await User.findById(id).select(
+			'-password',
+		);
+		if (!user)
+			return next(createError(404, 'User not found'));
+		res.status(200).json(user);
+	} catch (error) {
+		next(error);
+	}
+};
+
 export const createUser = async (req, res, next) => {
 	const { username, email, password } = req.body;
 	try {
