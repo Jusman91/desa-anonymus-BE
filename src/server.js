@@ -16,11 +16,6 @@ import categoriesRouter from './routes/categories.js';
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cors());
-app.use(morgan('dev'));
-app.use(cookieParser());
-
-// Routes
 app.use((req, res, next) => {
 	res.header(
 		'Access-Control-Allow-Origin',
@@ -33,6 +28,11 @@ app.use((req, res, next) => {
 	res.header('Access-Control-Allow-Credentials', 'true');
 	next();
 });
+app.use(cors());
+app.use(morgan('dev'));
+app.use(cookieParser());
+
+// Routes
 const v1 = '/api/desa-anonymus/v1';
 
 app.use(`${v1}/auth`, authRoutes);
