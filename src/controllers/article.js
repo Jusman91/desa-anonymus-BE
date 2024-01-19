@@ -9,6 +9,7 @@ import {
 	validateCreateArticleBody,
 	validateUpdateArticleBody,
 } from '../utils/validations/reqBodyValidaton.js';
+import mongoose from 'mongoose';
 
 export const createArticle = async (req, res, next) => {
 	try {
@@ -25,6 +26,9 @@ export const createArticle = async (req, res, next) => {
 export const updateArticle = async (req, res, next) => {
 	const { id } = req.params;
 	try {
+		if (!mongoose.Types.ObjectId.isValid(id))
+			return next(createError(404, 'Article not found'));
+
 		await validateUpdateArticleBody(req.body);
 		const updatedArticle = await Article.findByIdAndUpdate(
 			id,
@@ -46,9 +50,22 @@ export const updateArticle = async (req, res, next) => {
 export const deleteArticle = async (req, res, next) => {
 	const { id } = req.params;
 	try {
-		const article = await Article.findByIdAndDelete(id);
-		if (!article)
+		if (!mongoose.Types.ObjectId.isValid(id))
 			return next(createError(404, 'Article not found'));
+
+		const existingArticle = Article.findById(id);
+
+		if (!existingArticle)
+			return next(createError(404, 'Article not found'));
+
+		const oldArticleThumbnailURL =
+			existingArticle.thumbnail;
+
+		if (oldArticleThumbnailURL) {
+			deleteImage(oldArticleThumbnailURL);
+		}
+
+		const article = await Article.findByIdAndDelete(id);
 
 		res
 			.status(200)
@@ -61,6 +78,9 @@ export const deleteArticle = async (req, res, next) => {
 export const getOneArticle = async (req, res, next) => {
 	const { id } = req.params;
 	try {
+		if (!mongoose.Types.ObjectId.isValid(id))
+			return next(createError(404, 'Article not found'));
+
 		const article = await Article.findById(id);
 		if (!article)
 			return next(createError(404, 'Article not found'));
@@ -95,6 +115,67 @@ export const getAllArticles = async (req, res, next) => {
 			pageCount,
 			limit,
 		});
+	} catch (error) {
+		next(error);
+	}
+};
+
+export const uploadArticleThumbnail = async (
+	req,
+	res,
+	next,
+) => {
+	try {
+		const folderName = 'article-thumbnail';
+		const originalName = req.file.originalname;
+		const mimeType = req.file.mimetype;
+		const fileBuffer = req.file.buffer;
+
+		const downloadURL = await sendImage({
+			folderName,
+			originalName,
+			mimeType,
+			fileBuffer,
+		});
+		res.status(201).json(downloadURL);
+	} catch (error) {
+		next(error);
+	}
+};
+
+export const updateArticleThumbnail = async (
+	req,
+	res,
+	next,
+) => {
+	const { id } = req.params;
+	try {
+		const folderName = 'article-thumbnail';
+		const originalName = req.file.originalname;
+		const mimeType = req.file.mimetype;
+		const fileBuffer = req.file.buffer;
+
+		if (!mongoose.Types.ObjectId.isValid(id))
+			return next(createError(404, 'Article not found'));
+
+		const existingArticle = await Article.findById(id);
+
+		if (!existingArticle)
+			return next(createError(404, 'Article not found'));
+		const oldArticleThumbnailURL =
+			existingArticle.thumbnail;
+
+		if (oldArticleThumbnailURL) {
+			deleteImage(oldArticleThumbnailURL);
+		}
+
+		const downloadURL = await sendImage({
+			folderName,
+			originalName,
+			mimeType,
+			fileBuffer,
+		});
+		res.status(201).json(downloadURL);
 	} catch (error) {
 		next(error);
 	}

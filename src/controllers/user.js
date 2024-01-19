@@ -14,15 +14,18 @@ import {
 	deleteImage,
 	sendImage,
 } from '../utils/storageImage.js';
+import mongoose from 'mongoose';
 
 export const getUserLogged = async (req, res, next) => {
 	try {
 		const { id } = req.user;
+		if (!mongoose.Types.ObjectId.isValid(id))
+			return next(createError(404, 'User not allowed'));
 		const user = await User.findById(id).select(
 			'-password',
 		);
 		if (!user)
-			return next(createError(404, 'User not found'));
+			return next(createError(404, 'User not allowed'));
 		res.status(200).json(user);
 	} catch (error) {
 		next(error);
@@ -58,6 +61,9 @@ export const createUser = async (req, res, next) => {
 export const updateUser = async (req, res, next) => {
 	const { id } = req.params;
 	try {
+		if (!mongoose.Types.ObjectId.isValid(id))
+			return next(createError(404, 'User not found'));
+
 		await validateUpdateUserBody(req.body);
 		const updatedUser = await User.findByIdAndUpdate(
 			id,
@@ -79,6 +85,9 @@ export const updateUser = async (req, res, next) => {
 export const deleteUser = async (req, res, next) => {
 	const { id } = req.params;
 	try {
+		if (!mongoose.Types.ObjectId.isValid(id))
+			return next(createError(404, 'User not found'));
+
 		const existingUser = await User.findById(id);
 		if (!existingUser)
 			return next(createError(404, 'User not found'));
@@ -101,9 +110,13 @@ export const deleteUser = async (req, res, next) => {
 export const getOneUser = async (req, res, next) => {
 	const { id } = req.params;
 	try {
+		if (!mongoose.Types.ObjectId.isValid(id))
+			return next(createError(404, 'User not found'));
+
 		const user = await User.findById(id).select(
 			'-password',
 		);
+
 		if (!user)
 			return next(createError(404, 'User not found'));
 
@@ -151,7 +164,14 @@ export const uploadProfilePic = async (req, res, next) => {
 		const mimeType = req.file.mimetype;
 		const fileBuffer = req.file.buffer;
 
+		if (!mongoose.Types.ObjectId.isValid(id))
+			return next(createError(404, 'User not found'));
+
 		const existingUser = await User.findById(id);
+
+		if (!existingUser)
+			return next(createError(404, 'User not found'));
+
 		const oldProfilePicURL = existingUser.profilePic;
 
 		if (oldProfilePicURL) {

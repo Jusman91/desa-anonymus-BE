@@ -9,6 +9,7 @@ import {
 	validateCreateProductBody,
 	validateUpdateProductBody,
 } from '../utils/validations/reqBodyValidaton.js';
+import mongoose from 'mongoose';
 
 export const createProduct = async (req, res, next) => {
 	try {
@@ -25,7 +26,11 @@ export const createProduct = async (req, res, next) => {
 export const updateProduct = async (req, res, next) => {
 	const { id } = req.params;
 	try {
+		if (!mongoose.Types.ObjectId.isValid(id))
+			return next(createError(404, 'Product not found'));
+
 		await validateUpdateProductBody(req.body);
+
 		const updatedProduct = await Product.findByIdAndUpdate(
 			id,
 			{ $set: req.body },
@@ -46,9 +51,22 @@ export const updateProduct = async (req, res, next) => {
 export const deleteProduct = async (req, res, next) => {
 	const { id } = req.params;
 	try {
-		const product = await Product.findByIdAndDelete(id);
-		if (!product)
+		if (!mongoose.Types.ObjectId.isValid(id))
 			return next(createError(404, 'Product not found'));
+
+		const existingProduct = Product.findById(id);
+
+		if (!existingProduct)
+			return next(createError(404, 'Product not found'));
+
+		const oldProductThumbnailURL =
+			existingProduct.thumbnail;
+
+		if (oldProductThumbnailURL) {
+			deleteImage(oldProductThumbnailURL);
+		}
+
+		await Product.findByIdAndDelete(id);
 
 		res
 			.status(200)
@@ -61,7 +79,11 @@ export const deleteProduct = async (req, res, next) => {
 export const getOneProduct = async (req, res, next) => {
 	const { id } = req.params;
 	try {
+		if (!mongoose.Types.ObjectId.isValid(id))
+			return next(createError(404, 'Product not found'));
+
 		const product = await Product.findById(id);
+
 		if (!product)
 			return next(createError(404, 'Product not found'));
 
@@ -95,6 +117,67 @@ export const getAllProducts = async (req, res, next) => {
 			pageCount,
 			limit,
 		});
+	} catch (error) {
+		next(error);
+	}
+};
+
+export const uploadProductThumbnail = async (
+	req,
+	res,
+	next,
+) => {
+	try {
+		const folderName = 'product-thumbnail';
+		const originalName = req.file.originalname;
+		const mimeType = req.file.mimetype;
+		const fileBuffer = req.file.buffer;
+
+		const downloadURL = await sendImage({
+			folderName,
+			originalName,
+			mimeType,
+			fileBuffer,
+		});
+		res.status(201).json(downloadURL);
+	} catch (error) {
+		next(error);
+	}
+};
+
+export const updateProductThumbnail = async (
+	req,
+	res,
+	next,
+) => {
+	const { id } = req.params;
+	try {
+		const folderName = 'product-thumbnail';
+		const originalName = req.file.originalname;
+		const mimeType = req.file.mimetype;
+		const fileBuffer = req.file.buffer;
+
+		if (!mongoose.Types.ObjectId.isValid(id))
+			return next(createError(404, 'Product not found'));
+
+		const existingProduct = await Product.findById(id);
+
+		if (!existingProduct)
+			return next(createError(404, 'Product not found'));
+		const oldProductThumbnailURL =
+			existingProduct.thumbnail;
+
+		if (oldProductThumbnailURL) {
+			deleteImage(oldProductThumbnailURL);
+		}
+
+		const downloadURL = await sendImage({
+			folderName,
+			originalName,
+			mimeType,
+			fileBuffer,
+		});
+		res.status(201).json(downloadURL);
 	} catch (error) {
 		next(error);
 	}

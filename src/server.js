@@ -16,7 +16,6 @@ import categoriesRouter from './routes/categories.js';
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-
 app.use(cors());
 app.use(morgan('dev'));
 app.use(cookieParser());
