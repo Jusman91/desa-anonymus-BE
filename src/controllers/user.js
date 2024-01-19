@@ -10,6 +10,10 @@ import {
 	validateRegisterBody,
 	validateUpdateUserBody,
 } from '../utils/validations/reqBodyValidaton.js';
+import {
+	deleteImage,
+	sendImage,
+} from '../utils/storageImage.js';
 
 export const getUserLogged = async (req, res, next) => {
 	try {
@@ -26,7 +30,7 @@ export const getUserLogged = async (req, res, next) => {
 };
 
 export const createUser = async (req, res, next) => {
-	const { username, email, password } = req.body;
+	const { username, email, password, role } = req.body;
 	try {
 		await validateRegisterBody(req.body);
 		const existingUser = await User.findOne({ email });
@@ -41,6 +45,7 @@ export const createUser = async (req, res, next) => {
 			username,
 			email,
 			password: hashedPassword,
+			role,
 		});
 		res.status(201).json({
 			message: 'User created successfully',
@@ -74,9 +79,16 @@ export const updateUser = async (req, res, next) => {
 export const deleteUser = async (req, res, next) => {
 	const { id } = req.params;
 	try {
-		const user = await User.findByIdAndDelete(id);
-		if (!user)
+		const existingUser = await User.findById(id);
+		if (!existingUser)
 			return next(createError(404, 'User not found'));
+
+		const oldURL = existingUser.profilePic;
+		if (oldURL) {
+			deleteImage(oldURL);
+		}
+
+		await User.findByIdAndDelete(id);
 
 		res
 			.status(200)
@@ -126,6 +138,33 @@ export const getAllUsers = async (req, res, next) => {
 			pageCount,
 			limit,
 		});
+	} catch (error) {
+		next(error);
+	}
+};
+
+export const uploadProfilePic = async (req, res, next) => {
+	const { id } = req.params;
+	try {
+		const folderName = 'user-profile';
+		const originalName = req.file.originalname;
+		const mimeType = req.file.mimetype;
+		const fileBuffer = req.file.buffer;
+
+		const existingUser = await User.findById(id);
+		const oldProfilePicURL = existingUser.profilePic;
+
+		if (oldProfilePicURL) {
+			deleteImage(oldProfilePicURL);
+		}
+
+		const downloadURL = await sendImage({
+			folderName,
+			originalName,
+			mimeType,
+			fileBuffer,
+		});
+		res.status(201).json(downloadURL);
 	} catch (error) {
 		next(error);
 	}

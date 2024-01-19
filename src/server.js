@@ -12,8 +12,6 @@ import articlesRoutes from './routes/articles.js';
 import productsRoutes from './routes/products.js';
 import categoriesRouter from './routes/categories.js';
 
-const v1 = '/api/desa-anonymus/v1';
-
 // Middlewares
 const app = express();
 app.use(express.json());
@@ -23,6 +21,8 @@ app.use(morgan('dev'));
 app.use(cookieParser());
 
 // Routes
+const v1 = '/api/desa-anonymus/v1';
+
 app.use(`${v1}/auth`, authRoutes);
 app.use(`${v1}/users`, usersRoutes);
 app.use(`${v1}/categories`, categoriesRouter);
