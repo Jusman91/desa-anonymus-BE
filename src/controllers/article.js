@@ -5,15 +5,16 @@ import {
 	buildSearchQuery,
 	buildSortQuery,
 } from '../utils/queries.js';
-import {
-	validateCreateArticleBody,
-	validateUpdateArticleBody,
-} from '../utils/validations/reqBodyValidaton.js';
+import { validateArticleBody } from '../utils/validations/reqBodyValidaton.js';
 import mongoose from 'mongoose';
+import {
+	deleteImage,
+	sendImage,
+} from '../utils/storageImage.js';
 
 export const createArticle = async (req, res, next) => {
 	try {
-		await validateCreateArticleBody(req.body);
+		await validateArticleBody(req.body);
 		await Article.create(req.body);
 		res
 			.status(201)
@@ -29,7 +30,7 @@ export const updateArticle = async (req, res, next) => {
 		if (!mongoose.Types.ObjectId.isValid(id))
 			return next(createError(404, 'Article not found'));
 
-		await validateUpdateArticleBody(req.body);
+		await validateArticleBody(req.body);
 		const updatedArticle = await Article.findByIdAndUpdate(
 			id,
 			{ $set: req.body },

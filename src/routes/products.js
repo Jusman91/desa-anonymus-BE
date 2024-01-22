@@ -26,7 +26,7 @@ router.post(
 	uploadFile,
 	uploadProductThumbnail,
 );
-router.put(
+router.post(
 	'/upload_thumbnail/:id',
 	verifyAdmin,
 	uploadFile,

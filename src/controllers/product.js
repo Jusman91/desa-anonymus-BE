@@ -5,15 +5,17 @@ import {
 	buildSearchQuery,
 	buildSortQuery,
 } from '../utils/queries.js';
-import {
-	validateCreateProductBody,
-	validateUpdateProductBody,
-} from '../utils/validations/reqBodyValidaton.js';
+import { validateProductBody } from '../utils/validations/reqBodyValidaton.js';
 import mongoose from 'mongoose';
+import {
+	deleteImage,
+	sendImage,
+} from '../utils/storageImage.js';
 
 export const createProduct = async (req, res, next) => {
 	try {
-		await validateCreateProductBody(req.body);
+		await validateProductBody(req.body);
+
 		await Product.create(req.body);
 		res
 			.status(201)
@@ -29,7 +31,7 @@ export const updateProduct = async (req, res, next) => {
 		if (!mongoose.Types.ObjectId.isValid(id))
 			return next(createError(404, 'Product not found'));
 
-		await validateUpdateProductBody(req.body);
+		await validateProductBody(req.body);
 
 		const updatedProduct = await Product.findByIdAndUpdate(
 			id,
@@ -87,7 +89,7 @@ export const getOneProduct = async (req, res, next) => {
 		if (!product)
 			return next(createError(404, 'Product not found'));
 
-		res.status(200).json(Product);
+		res.status(200).json(product);
 	} catch (error) {
 		next(error);
 	}

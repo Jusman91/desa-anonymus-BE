@@ -14,7 +14,7 @@ const dataCategories = [
 	{ name: 'olahraga' },
 	{ name: 'hewan' },
 	{ name: 'seni' },
-	{ name: 'campuran' },
+	{ name: 'lainnya' },
 ];
 
 const CategoriesProduct = mongoose.model(
