@@ -16,6 +16,11 @@ import {
 } from '../utils/storageImage.js';
 import mongoose from 'mongoose';
 import { updateFileImage } from '../middleware/fileImage.js';
+import {
+	getCurrentDateCreateGte,
+	getCurrentDateCreateLt,
+} from '../utils/getTimes.js';
+import { aggregateCountByMonth } from '../utils/aggregateCountByMonth.js';
 
 export const getUserLogged = async (req, res, next) => {
 	try {
@@ -178,6 +183,22 @@ export const uploadProfilePic = async (req, res, next) => {
 			next,
 			folderName,
 			oldDataImgURL,
+		});
+	} catch (error) {
+		next(error);
+	}
+};
+
+export const getUserStatistics = async (req, res, next) => {
+	try {
+		const totalData = await User.countDocuments();
+
+		const newDataCountPerMonth =
+			await aggregateCountByMonth(User);
+
+		res.status(200).json({
+			totalData,
+			newDataCountPerMonth,
 		});
 	} catch (error) {
 		next(error);

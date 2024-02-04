@@ -13,6 +13,7 @@ import {
 	uploadFileImage,
 } from '../middleware/fileImage.js';
 import { extractImageUrls } from '../utils/cheerioUtil.js';
+import { aggregateCountByMonth } from '../utils/aggregateCountByMonth.js';
 
 export const createArticle = async (req, res, next) => {
 	try {
@@ -180,6 +181,26 @@ export const uploadArticleImgContent = async (
 	try {
 		const folderName = 'article-content-img';
 		await uploadFileImage({ req, res, next, folderName });
+	} catch (error) {
+		next(error);
+	}
+};
+
+export const getArticleStatistics = async (
+	req,
+	res,
+	next,
+) => {
+	try {
+		const totalData = await Article.countDocuments();
+
+		const newDataCountPerMonth =
+			await aggregateCountByMonth(Article);
+
+		res.status(200).json({
+			totalData,
+			newDataCountPerMonth,
+		});
 	} catch (error) {
 		next(error);
 	}

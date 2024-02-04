@@ -10,6 +10,7 @@ import {
 	getAllUsers,
 	getOneUser,
 	getUserLogged,
+	getUserStatistics,
 	updateUser,
 	uploadProfilePic,
 } from '../controllers/user.js';
@@ -21,8 +22,9 @@ router.get('/me', verifyToken, getUserLogged);
 router.post('/', verifyAdmin, createUser);
 router.put('/:id', verifyUser, updateUser);
 router.delete('/:id', verifyUser, deleteUser);
+router.get('/statistics', verifyAdmin, getUserStatistics);
 router.get('/:id', verifyUser, getOneUser);
-router.get('/', verifyUser, getAllUsers);
+router.get('/', verifyAdmin, getAllUsers);
 router.put(
 	'/profile_pic/:id',
 	verifyUser,

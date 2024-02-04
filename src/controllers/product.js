@@ -12,6 +12,7 @@ import {
 	updateFileImage,
 	uploadFileImage,
 } from '../middleware/fileImage.js';
+import { aggregateCountByMonth } from '../utils/aggregateCountByMonth.js';
 
 export const createProduct = async (req, res, next) => {
 	try {
@@ -162,6 +163,26 @@ export const updateProductThumbnail = async (
 			next,
 			oldDataImgURL,
 			folderName,
+		});
+	} catch (error) {
+		next(error);
+	}
+};
+
+export const getProductStatistics = async (
+	req,
+	res,
+	next,
+) => {
+	try {
+		const totalData = await Product.countDocuments();
+
+		const newDataCountPerMonth =
+			await aggregateCountByMonth(Product);
+
+		res.status(200).json({
+			totalData,
+			newDataCountPerMonth,
 		});
 	} catch (error) {
 		next(error);

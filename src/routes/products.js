@@ -8,6 +8,7 @@ import {
 	deleteProduct,
 	getAllProducts,
 	getOneProduct,
+	getProductStatistics,
 	updateProduct,
 	updateProductThumbnail,
 	uploadProductThumbnail,
@@ -19,6 +20,11 @@ const router = express.Router();
 router.post('/', verifyAdmin, createProduct);
 router.put('/:id', verifyAdmin, updateProduct);
 router.delete('/:id', verifyAdmin, deleteProduct);
+router.get(
+	'/statistics',
+	verifyAdmin,
+	getProductStatistics,
+);
 router.get('/:id', verifyUser, getOneProduct);
 router.get('/', verifyUser, getAllProducts);
 router.post(
