@@ -195,12 +195,14 @@ const handleImageUpdates = async (
 	const newContentImgURLs = extractImageUrls(newContent);
 
 	// Bandingkan konten artikel sebelum dan setelah pembaruan
-	const imagesToDelete = oldContentImgURLs.filter(
+	const imagesToDelete = oldContentImgURLs?.filter(
 		(oldImgURL) => !newContentImgURLs.includes(oldImgURL),
 	);
 
 	// Hapus gambar-gambar yang tidak lagi digunakan dari Firebase Storage
-	await Promise.all(imagesToDelete.map(deleteImage));
+	if (imagesToDelete) {
+		await Promise.all(imagesToDelete.map(deleteImage));
+	}
 };
 
 const deleteArticleResources = async (article) => {
