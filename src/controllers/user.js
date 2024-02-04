@@ -15,6 +15,7 @@ import {
 	sendImage,
 } from '../utils/storageImage.js';
 import mongoose from 'mongoose';
+import { updateFileImage } from '../middleware/fileImage.js';
 
 export const getUserLogged = async (req, res, next) => {
 	try {
@@ -160,9 +161,6 @@ export const uploadProfilePic = async (req, res, next) => {
 	const { id } = req.params;
 	try {
 		const folderName = 'user-profile';
-		const originalName = req.file.originalname;
-		const mimeType = req.file.mimetype;
-		const fileBuffer = req.file.buffer;
 
 		if (!mongoose.Types.ObjectId.isValid(id))
 			return next(createError(404, 'User not found'));
@@ -172,19 +170,15 @@ export const uploadProfilePic = async (req, res, next) => {
 		if (!existingUser)
 			return next(createError(404, 'User not found'));
 
-		const oldProfilePicURL = existingUser.profilePic;
+		const oldDataImgURL = existingUser.profilePic;
 
-		if (oldProfilePicURL) {
-			deleteImage(oldProfilePicURL);
-		}
-
-		const downloadURL = await sendImage({
+		await updateFileImage({
+			req,
+			res,
+			next,
 			folderName,
-			originalName,
-			mimeType,
-			fileBuffer,
+			oldDataImgURL,
 		});
-		res.status(201).json(downloadURL);
 	} catch (error) {
 		next(error);
 	}

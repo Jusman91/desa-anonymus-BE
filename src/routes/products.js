@@ -12,7 +12,8 @@ import {
 	updateProductThumbnail,
 	uploadProductThumbnail,
 } from '../controllers/product.js';
-import { uploadFile } from '../middleware/uploadFileImage.js';
+import { multerImage } from '../middleware/multerImage.js';
+
 const router = express.Router();
 
 router.post('/', verifyAdmin, createProduct);
@@ -21,15 +22,15 @@ router.delete('/:id', verifyAdmin, deleteProduct);
 router.get('/:id', verifyUser, getOneProduct);
 router.get('/', verifyUser, getAllProducts);
 router.post(
-	'/upload_thumbnail',
+	'/thumbnail',
 	verifyAdmin,
-	uploadFile,
+	multerImage,
 	uploadProductThumbnail,
 );
-router.post(
-	'/upload_thumbnail/:id',
+router.put(
+	'/thumbnail/:id',
 	verifyAdmin,
-	uploadFile,
+	multerImage,
 	updateProductThumbnail,
 );
 

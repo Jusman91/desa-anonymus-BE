@@ -84,7 +84,7 @@ const articleValidationSchema = Yup.object().shape({
 		.max(15, 'Author cannot exceed 15 characters'),
 	description: Yup.string()
 		.required('Description is required')
-		.min(50, 'Description must be at least 50 characters')
+		.min(10, 'Description must be at least 10 characters')
 		.max(200, 'Description cannot exceed 200 characters'),
 	thumbnail: Yup.string().required('Thumbnail is required'),
 	category: Yup.string().required('Category is required'),

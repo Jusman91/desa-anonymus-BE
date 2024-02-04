@@ -1,11 +1,11 @@
 import multer from 'multer';
 import { createError } from './error.js';
 
-export const uploadFile = (req, res, next) => {
+export const multerImage = (req, res, next) => {
 	const uploader = multer({
 		storage: multer.memoryStorage(),
 		limits: {
-			fieldSize: 1 * 1024 * 1024, // keep images size <= 1 MB
+			fileSize: 1 * 1024 * 1024, // keep images size <= 1 MB
 		},
 		fileFilter: (req, file, cb) => {
 			const allowedTypes = [

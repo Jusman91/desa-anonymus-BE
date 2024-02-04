@@ -10,9 +10,10 @@ import {
 	getOneArticle,
 	updateArticle,
 	updateArticleThumbnail,
+	uploadArticleImgContent,
 	uploadArticleThumbnail,
 } from '../controllers/article.js';
-import { uploadFile } from '../middleware/uploadFileImage.js';
+import { multerImage } from '../middleware/multerImage.js';
 
 const router = express.Router();
 
@@ -22,16 +23,22 @@ router.delete('/:id', verifyAdmin, deleteArticle);
 router.get('/:id', verifyUser, getOneArticle);
 router.get('/', verifyUser, getAllArticles);
 router.post(
-	'/upload_thumbnail',
+	'/thumbnail',
 	verifyAdmin,
-	uploadFile,
+	multerImage,
 	uploadArticleThumbnail,
 );
-router.post(
-	'/upload_thumbnail/:id',
+router.put(
+	'/thumbnail/:id',
 	verifyAdmin,
-	uploadFile,
+	multerImage,
 	updateArticleThumbnail,
+);
+router.post(
+	'/img_content',
+	verifyAdmin,
+	multerImage,
+	uploadArticleImgContent,
 );
 
 export default router;

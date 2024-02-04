@@ -7,10 +7,12 @@ import {
 } from '../utils/queries.js';
 import { validateArticleBody } from '../utils/validations/reqBodyValidaton.js';
 import mongoose from 'mongoose';
+import { deleteImage } from '../utils/storageImage.js';
 import {
-	deleteImage,
-	sendImage,
-} from '../utils/storageImage.js';
+	updateFileImage,
+	uploadFileImage,
+} from '../middleware/fileImage.js';
+import { extractImageUrls } from '../utils/cheerioUtil.js';
 
 export const createArticle = async (req, res, next) => {
 	try {
@@ -31,6 +33,17 @@ export const updateArticle = async (req, res, next) => {
 			return next(createError(404, 'Article not found'));
 
 		await validateArticleBody(req.body);
+
+		const existingArticle = await Article.findById(id);
+
+		if (!existingArticle)
+			return next(createError(404, 'Article not found'));
+
+		await handleImageUpdates(
+			existingArticle,
+			req.body.content,
+		);
+
 		const updatedArticle = await Article.findByIdAndUpdate(
 			id,
 			{ $set: req.body },
@@ -54,19 +67,14 @@ export const deleteArticle = async (req, res, next) => {
 		if (!mongoose.Types.ObjectId.isValid(id))
 			return next(createError(404, 'Article not found'));
 
-		const existingArticle = Article.findById(id);
+		const existingArticle = await Article.findById(id);
 
 		if (!existingArticle)
 			return next(createError(404, 'Article not found'));
 
-		const oldArticleThumbnailURL =
-			existingArticle.thumbnail;
+		await deleteArticleResources(existingArticle);
 
-		if (oldArticleThumbnailURL) {
-			deleteImage(oldArticleThumbnailURL);
-		}
-
-		const article = await Article.findByIdAndDelete(id);
+		await Article.findByIdAndDelete(id);
 
 		res
 			.status(200)
@@ -128,17 +136,7 @@ export const uploadArticleThumbnail = async (
 ) => {
 	try {
 		const folderName = 'article-thumbnail';
-		const originalName = req.file.originalname;
-		const mimeType = req.file.mimetype;
-		const fileBuffer = req.file.buffer;
-
-		const downloadURL = await sendImage({
-			folderName,
-			originalName,
-			mimeType,
-			fileBuffer,
-		});
-		res.status(201).json(downloadURL);
+		await uploadFileImage({ req, res, next, folderName });
 	} catch (error) {
 		next(error);
 	}
@@ -152,32 +150,71 @@ export const updateArticleThumbnail = async (
 	const { id } = req.params;
 	try {
 		const folderName = 'article-thumbnail';
-		const originalName = req.file.originalname;
-		const mimeType = req.file.mimetype;
-		const fileBuffer = req.file.buffer;
 
 		if (!mongoose.Types.ObjectId.isValid(id))
 			return next(createError(404, 'Article not found'));
 
-		const existingArticle = await Article.findById(id);
+		const existingData = await Article.findById(id);
 
-		if (!existingArticle)
+		if (!existingData)
 			return next(createError(404, 'Article not found'));
-		const oldArticleThumbnailURL =
-			existingArticle.thumbnail;
+		const oldDataImgURL = existingData.thumbnail;
 
-		if (oldArticleThumbnailURL) {
-			deleteImage(oldArticleThumbnailURL);
-		}
-
-		const downloadURL = await sendImage({
+		await updateFileImage({
+			req,
+			res,
+			next,
 			folderName,
-			originalName,
-			mimeType,
-			fileBuffer,
+			oldDataImgURL,
 		});
-		res.status(201).json(downloadURL);
 	} catch (error) {
 		next(error);
+	}
+};
+
+export const uploadArticleImgContent = async (
+	req,
+	res,
+	next,
+) => {
+	try {
+		const folderName = 'article-content-img';
+		await uploadFileImage({ req, res, next, folderName });
+	} catch (error) {
+		next(error);
+	}
+};
+
+const handleImageUpdates = async (
+	existingArticle,
+	newContent,
+) => {
+	const oldContentImgURLs = extractImageUrls(
+		existingArticle.content,
+	);
+	const newContentImgURLs = extractImageUrls(newContent);
+
+	// Bandingkan konten artikel sebelum dan setelah pembaruan
+	const imagesToDelete = oldContentImgURLs.filter(
+		(oldImgURL) => !newContentImgURLs.includes(oldImgURL),
+	);
+
+	// Hapus gambar-gambar yang tidak lagi digunakan dari Firebase Storage
+	await Promise.all(imagesToDelete.map(deleteImage));
+};
+
+const deleteArticleResources = async (article) => {
+	const { thumbnail, content } = article;
+
+	await deleteImageIfExists(thumbnail);
+
+	const imageUrls = extractImageUrls(content);
+
+	await Promise.all(imageUrls.map(deleteImageIfExists));
+};
+
+const deleteImageIfExists = async (imageUrl) => {
+	if (imageUrl) {
+		await deleteImage(imageUrl);
 	}
 };
