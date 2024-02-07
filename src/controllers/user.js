@@ -16,10 +16,6 @@ import {
 } from '../utils/storageImage.js';
 import mongoose from 'mongoose';
 import { updateFileImage } from '../middleware/fileImage.js';
-import {
-	getCurrentDateCreateGte,
-	getCurrentDateCreateLt,
-} from '../utils/getTimes.js';
 import { aggregateCountByMonth } from '../utils/aggregateCountByMonth.js';
 
 export const getUserLogged = async (req, res, next) => {
