@@ -20,6 +20,9 @@ export const aggregateCountByMonth = async (model) => {
 					total: 1,
 				},
 			},
+			{
+				$sort: { year: 1, month: 1 },
+			},
 		]);
 
 		// Cek apakah data untuk bulan saat ini sudah ada
