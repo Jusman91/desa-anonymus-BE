@@ -1,0 +1,11 @@
+# Direktori dan File Build
+node_modules/
+dist/
+build/
+*.log
+*.cache
+
+# File Editor dan IDE
+.vscode/
+.idea/
+*.iml
