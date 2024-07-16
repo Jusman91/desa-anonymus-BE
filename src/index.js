@@ -29,6 +29,10 @@ app.use(`${v1}/categories`, categoriesRouter);
 app.use(`${v1}/articles`, articlesRoutes);
 app.use(`${v1}/products`, productsRoutes);
 
+app.get('/', (req, res) => {
+	res.send('Server is running');
+});
+
 // Handle errors
 app.use((err, req, res, next) => {
 	const errorStatus = err.status || 500;
