@@ -5,12 +5,12 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
-import connectToDB from '../config/db.js';
-import authRoutes from '../routes/auth.js';
-import usersRoutes from '../routes/users.js';
-import articlesRoutes from '../routes/articles.js';
-import productsRoutes from '../routes/products.js';
-import categoriesRouter from '../routes/categories.js';
+import connectToDB from './config/db.js';
+import authRoutes from './routes/auth.js';
+import usersRoutes from './routes/users.js';
+import articlesRoutes from './routes/articles.js';
+import productsRoutes from './routes/products.js';
+import categoriesRouter from './routes/categories.js';
 
 // Middlewares
 const app = express();
@@ -28,10 +28,6 @@ app.use(`${v1}/users`, usersRoutes);
 app.use(`${v1}/categories`, categoriesRouter);
 app.use(`${v1}/articles`, articlesRoutes);
 app.use(`${v1}/products`, productsRoutes);
-
-app.get('/', (req, res) => {
-	res.send('Server is running');
-});
 
 // Handle errors
 app.use((err, req, res, next) => {
