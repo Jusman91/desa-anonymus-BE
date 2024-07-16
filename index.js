@@ -5,12 +5,12 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
-import connectToDB from './config/db.js';
-import authRoutes from './routes/auth.js';
-import usersRoutes from './routes/users.js';
-import articlesRoutes from './routes/articles.js';
-import productsRoutes from './routes/products.js';
-import categoriesRouter from './routes/categories.js';
+import connectToDB from './src/config/db.js';
+import authRoutes from './src/routes/auth.js';
+import usersRoutes from './src/routes/users.js';
+import articlesRoutes from './src/routes/articles.js';
+import productsRoutes from './src/routes/products.js';
+import categoriesRouter from './src/routes/categories.js';
 
 // Middlewares
 const app = express();
